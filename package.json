@@ -1,6 +1,6 @@
 {
   "name": "@synet/circuit-breaker",
-  "version": "1.0.0",
+  "version": "0.0.1-dev.0",
   "description": "",
   "type": "module",
   "main": "dist/index.js",
@@ -52,6 +52,7 @@
   "license": "MIT",
   "dependencies": {
     "@synet/http": "^1.0.0",
+    "@synet/state": "^0.0.1-dev.0",
     "@synet/unit": "^1.0.6"
   }
 }
