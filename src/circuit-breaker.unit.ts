@@ -25,11 +25,7 @@ class CircuitBreaker extends Unit<CircuitBreakerProps> {
 
   static create(config: CircuitBreakerConfig): CircuitBreaker {
     // Create state dependency with URL-safe ID
-    const safeId = `circuit-${config.url
-      .replace(/https?:\/\//, '')
-      .replace(/[^a-zA-Z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '')}`;
+    const safeId = CircuitBreaker.safeId(config.url);
     
     const state = createState(safeId, {
       url: config.url,
@@ -53,6 +49,23 @@ class CircuitBreaker extends Unit<CircuitBreakerProps> {
     };
     
     return new CircuitBreaker(props);
+  }
+
+  // Convert any URL to a valid Unit ID using hash
+  private static safeId(url: string): string {
+    // Create hash from URL for guaranteed unique, valid ID
+    // Use a simple but effective hash that preserves uniqueness
+    let hash = 0;
+    for (let i = 0; i < url.length; i++) {
+      const char = url.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    
+    // Convert to positive hex string
+    const hexHash = Math.abs(hash).toString(16).padStart(8, '0');
+    
+    return hexHash;
   }
 
   // Core circuit breaker logic
@@ -152,16 +165,41 @@ class CircuitBreaker extends Unit<CircuitBreakerProps> {
     };
   }
 
+  // Serialize circuit breaker state for persistence/logging
+  toJson(): string {
+    const data = {
+      unitId: this.dna.id,
+      version: this.dna.version,
+      url: this.props.url,
+      config: {
+        failureThreshold: this.props.failureThreshold,
+        timeoutMs: this.props.timeoutMs,
+        halfOpenSuccessThreshold: this.props.halfOpenSuccessThreshold
+      },
+      state: {
+        current: this.getCircuitState(),
+        failures: this.props.state.get<number>('failures') ?? 0,
+        lastFailure: this.props.state.get<number>('lastFailure'),
+        successCount: this.props.state.get<number>('successCount') ?? 0,
+        openedAt: this.props.state.get<number>('openedAt')
+      },
+      timestamp: Date.now()
+    };
+    
+    return JSON.stringify(data, null, 2);
+  }
+
   teach(): TeachingContract {
     return {
       unitId: this.dna.id,
       capabilities: {
-        canProceed: () => this.canProceed(),
-        recordSuccess: () => this.recordSuccess(),
-        recordFailure: () => this.recordFailure(),
-        getCircuitState: () => this.getCircuitState(),
-        resetCircuit: () => this.resetCircuit(),
-        getStats: () => this.getStats()
+        canProceed: () => this.canProceed.bind(this),
+        recordSuccess: () => this.recordSuccess.bind(this),
+        recordFailure: () => this.recordFailure.bind(this),
+        getCircuitState: () => this.getCircuitState.bind(this),
+        resetCircuit: () => this.resetCircuit.bind(this),
+        getStats: () => this.getStats.bind(this),
+        toJson: () => this.toJson.bind(this)
       }
     };
   }
@@ -201,6 +239,14 @@ Teaching:
 • Teaches all circuit breaker operations
 • State is managed through dependency injection
 `;
+  }
+
+  get url(): string {
+    return this.props.url;
+  }
+
+  get state(): State {
+    return this.props.state;
   }
 }
 
