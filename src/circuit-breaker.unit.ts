@@ -16,6 +16,21 @@ interface CircuitBreakerProps extends UnitProps {
   state: State;  // Dependency injection
 }
 
+export interface CircuitBreakerStats {
+  url: string;
+  state: CircuitState;
+  failures: number;
+  lastFailure: number | null;
+  successCount: number; 
+  openedAt: number | null;
+  config: {
+    failureThreshold: number;
+    timeoutMs: number;
+    halfOpenSuccessThreshold: number;
+  };
+}
+
+
 type CircuitState = 'CLOSED' | 'OPEN' | 'HALF_OPEN';
 
 class CircuitBreaker extends Unit<CircuitBreakerProps> {
@@ -149,14 +164,14 @@ class CircuitBreaker extends Unit<CircuitBreakerProps> {
   }
 
   // Get current stats for monitoring
-  getStats() {
+  getStats(): CircuitBreakerStats {
     return {
       url: this.props.url,
       state: this.getCircuitState(),
       failures: this.props.state.get<number>('failures') ?? 0,
-      lastFailure: this.props.state.get<number>('lastFailure'),
+      lastFailure: this.props.state.get<number>('lastFailure') || null,
       successCount: this.props.state.get<number>('successCount') ?? 0,
-      openedAt: this.props.state.get<number>('openedAt'),
+      openedAt: this.props.state.get<number>('openedAt') || null,
       config: {
         failureThreshold: this.props.failureThreshold,
         timeoutMs: this.props.timeoutMs,
