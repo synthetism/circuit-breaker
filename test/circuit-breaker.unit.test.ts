@@ -95,21 +95,7 @@ describe('CircuitBreaker - 80/20 Tracer-Bullet Tests', () => {
     expect(stats.failures).toBe(0);
   });
 
-  it('should teach circuit breaker capabilities', () => {
-    const circuit = CircuitBreaker.create({
-      url: 'https://api.example.com'
-    });
-    
-    const contract = circuit.teach();
-    
-    expect(contract.unitId).toContain('circuit-breaker');
-    expect(contract.capabilities.canProceed).toBeDefined();
-    expect(contract.capabilities.recordSuccess).toBeDefined();
-    expect(contract.capabilities.recordFailure).toBeDefined();
-    expect(contract.capabilities.getCircuitState).toBeDefined();
-    expect(contract.capabilities.resetCircuit).toBeDefined();
-    expect(contract.capabilities.getStats).toBeDefined();
-  });
+
 
   it('should handle half-open failure correctly', () => {
     const circuit = CircuitBreaker.create({
@@ -234,16 +220,7 @@ describe('CircuitBreaker - URL Safe ID Generation & JSON Serialization', () => {
     expect(closedData.state.openedAt).toBeNull();
   });
 
-  it('should teach toJson capability', () => {
-    const circuit = CircuitBreaker.create({
-      url: 'https://api.example.com'
-    });
-    
-    const contract = circuit.teach();
-    
-    expect(contract.capabilities.toJson).toBeDefined();
-    expect(Object.keys(contract.capabilities)).toContain('toJson');
-  });
+ 
 
   it('should create different IDs for different URLs consistently', () => {
     const urls = [

@@ -1,6 +1,6 @@
 {
   "name": "@synet/circuit-breaker",
-  "version": "0.0.1-dev.3",
+  "version": "0.0.1-dev.4",
   "description": "",
   "type": "module",
   "main": "dist/index.js",
@@ -51,7 +51,7 @@
   "homepage": "https://synthetism.ai",
   "license": "MIT",
   "dependencies": {
-    "@synet/state": "^0.0.1-dev.0",
-    "@synet/unit": "^1.0.6"
+    "@synet/state": "^0.0.1-dev.4",
+    "@synet/unit": "^1.1.0"
   }
 }

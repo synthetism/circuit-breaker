@@ -1,4 +1,14 @@
-import { Unit, type UnitProps, createUnitSchema, type TeachingContract } from '@synet/unit';
+import { 
+  Unit, 
+  type UnitProps, 
+  createUnitSchema, 
+  type TeachingContract,
+  type UnitCore,
+  Capabilities,
+  Schema,
+  Validator
+} from '@synet/unit';
+
 import { type State, createState } from '@synet/state';
 
 interface CircuitBreakerConfig {
@@ -37,6 +47,26 @@ class CircuitBreaker extends Unit<CircuitBreakerProps> {
   protected constructor(props: CircuitBreakerProps) {
     super(props);
   }
+  // v1.1.0 Consciousness Trinity (empty for composition units)
+  protected build(): UnitCore {
+    const capabilities = Capabilities.create(this.dna.id, {});
+    const schema = Schema.create(this.dna.id, {});
+    const validator = Validator.create({
+      unitId: this.dna.id,
+      capabilities,
+      schema,
+      strictMode: false
+    });
+
+    return { capabilities, schema, validator };
+  }
+
+
+  // Consciousness Trinity Access
+  capabilities(): Capabilities { return this._unit.capabilities; }
+  schema(): Schema { return this._unit.schema; }
+  validator(): Validator { return this._unit.validator; }
+
 
   static create(config: CircuitBreakerConfig): CircuitBreaker {
     // Create state dependency with URL-safe ID
@@ -204,21 +234,14 @@ class CircuitBreaker extends Unit<CircuitBreakerProps> {
     return JSON.stringify(data, null, 2);
   }
 
-  teach(): TeachingContract {
+ teach(): TeachingContract {
     return {
       unitId: this.dna.id,
-      capabilities: {
-        canProceed: () => this.canProceed.bind(this),
-        recordSuccess: () => this.recordSuccess.bind(this),
-        recordFailure: () => this.recordFailure.bind(this),
-        getCircuitState: () => this.getCircuitState.bind(this),
-        resetCircuit: () => this.resetCircuit.bind(this),
-        getStats: () => this.getStats.bind(this),
-        toJson: () => this.toJson.bind(this)
-      }
+      capabilities: this._unit.capabilities,
+      schema: this._unit.schema,
+      validator: this._unit.validator
     };
   }
-
   whoami(): string {
     return `CircuitBreaker[${this.props.url}] - ${this.getCircuitState()} - v${this.dna.version}`;
   }
