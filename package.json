@@ -1,6 +1,6 @@
 {
   "name": "@synet/circuit-breaker",
-  "version": "0.0.1-dev.4",
+  "version": "1.0.0",
   "description": "",
   "type": "module",
   "main": "dist/index.js",
@@ -43,15 +43,16 @@
     "vitest": "^3.2.3"
   },
   "keywords": [
+    "http",
+    "Circuit Breaker",
     "Synet",
-    "Unit Architecture",
-    "Living beings in code"
+    "Unit Architecture"
   ],
   "author": "Synet Team",
   "homepage": "https://synthetism.ai",
   "license": "MIT",
   "dependencies": {
-    "@synet/state": "^0.0.1-dev.4",
+    "@synet/state": "^1.0.0",
     "@synet/unit": "^1.1.0"
   }
 }
